@@ -80,38 +80,29 @@ class IEC104Server(object):
                             request += new_byte
 
                         # check if IEC 104 packet or for the first occurrence of the indication 0x68 for IEC 104
-                        for elem in list(request):
-                            if 0x68 == elem:
-                                index = request.index(elem)
+                        if request[0] == 0x68:
+                            timeout_t3.cancel()
+                            response = None
+                            # check which frame type
+                            if not (request[2] & 0x01):  # i_frame
+                                response = iec104_handler.handle_i_frame(request)
+                            elif request[2] & 0x01 and not (
+                                request[2] & 0x02
+                            ):  # s_frame
+                                iec104_handler.handle_s_frame(request)
+                            elif request[2] & 0x03:  # u_frame
+                                response = iec104_handler.handle_u_frame(request)
+                            else:
+                                logger.warning(
+                                    "%s ---> No valid IEC104 type (%s)",
+                                    address,
+                                    session.id,
+                                )
 
-                                iec_request = request[index:]
-                                timeout_t3.cancel()
-                                response = None
-                                # check which frame type
-                                if not (iec_request[2] & 0x01):  # i_frame
-                                    response = iec104_handler.handle_i_frame(
-                                        iec_request
-                                    )
-                                elif iec_request[2] & 0x01 and not (
-                                    iec_request[2] & 0x02
-                                ):  # s_frame
-                                    iec104_handler.handle_s_frame(iec_request)
-                                elif iec_request[2] & 0x03:  # u_frame
-                                    response = iec104_handler.handle_u_frame(
-                                        iec_request
-                                    )
-                                else:
-                                    logger.warning(
-                                        "%s ---> No valid IEC104 type (%s)",
-                                        address,
-                                        session.id,
-                                    )
-
-                                if response:
-                                    for resp_packet in response:
-                                        if resp_packet:
-                                            sock.send(resp_packet)
-                                break
+                            if response:
+                                for resp_packet in response:
+                                    if resp_packet:
+                                        sock.send(resp_packet)
 
                     except Timeout_t3:
                         pkt = iec104_handler.send_104frame(TESTFR_act)

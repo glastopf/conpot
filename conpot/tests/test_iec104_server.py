@@ -223,3 +223,19 @@ class TestIEC104Server(unittest.TestCase):
         self.assertEqual("CONNECTION_LOST", con_lost_event["data"]["type"])
 
         s.close()
+
+    @patch("conpot.protocols.IEC104.IEC104_server.gevent._socket3.socket.recv")
+    def test_connection_times_out_if_traffic_starts_with_wrong_prefix(
+        self, mock_timeout
+    ):
+        """
+        Objective: Test if server ignores traffic starting with wrong prefix
+        """
+        mock_timeout.side_effect = TimeoutError()
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        s.settimeout(1)
+        s.connect(("127.0.0.1", 2404))
+        packet = frames.u_frame(Start=0x67).build()
+        s.send(packet)
+        with self.assertRaises(TimeoutError):
+            s.recv(6)
