@@ -15,26 +15,31 @@
 # Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
-from logging.handlers import SysLogHandler
 import logging
 import socket
+
+from logging.handlers import SysLogHandler
 
 
 class SysLogger(object):
     def __init__(self, host, port, facility, logdevice, logsocket):
-        logger = logging.getLogger()
+        self.logger = logging.getLogger("conpot")
+        handler = logging.StreamHandler()
 
         if str(logsocket).lower() == "udp":
-            logger.addHandler(
-                SysLogHandler(
-                    address=(host, port),
-                    facility=getattr(SysLogHandler, "LOG_" + str(facility).upper()),
-                    socktype=socket.SOCK_DGRAM,
-                )
+            handler = SysLogHandler(
+                address=(host, port),
+                facility=getattr(SysLogHandler, "LOG_" + str(facility).upper()),
+                socktype=socket.SOCK_DGRAM,
             )
         elif str(logsocket).lower() == "dev":
-            logger.addHandler(SysLogHandler(logdevice))
+            handler = SysLogHandler(address=logdevice)
 
-    def log(self, data):
-        # stub function since the additional handler has been added to the root loggers instance.
-        pass
+        formatter = logging.Formatter(
+            "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+        )
+        handler.setFormatter(formatter)
+        self.logger.addHandler(handler)
+
+    def log(self, event):
+        self.logger.info(event)

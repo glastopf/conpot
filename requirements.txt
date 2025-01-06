@@ -23,8 +23,7 @@ cpppo
 fs==2.3.0
 python-slugify
 tftpy
-# some freezegun versions broken
-freezegun!=0.3.13
+freezegun==1.1.0
 pytest
 cryptography==3.4.8
 sphinx_rtd_theme
