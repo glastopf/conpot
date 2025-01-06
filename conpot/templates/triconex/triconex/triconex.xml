@@ -1,0 +1,8 @@
+<triconex enabled="True" host="0.0.0.0" port="1502">
+  <slots>
+    <slot1>empty</slot1>
+    <slot2>empty</slot2>
+    <slot3>empty</slot3>
+    <slot4>empty</slot4>
+  </slots>
+</triconex>

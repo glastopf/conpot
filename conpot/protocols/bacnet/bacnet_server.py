@@ -28,6 +28,7 @@ from bacpypes.errors import DecodingError
 import conpot.core as conpot_core
 from conpot.protocols.bacnet.bacnet_app import BACnetApp
 from conpot.core.protocol_wrapper import conpot_protocol
+from conpot.core import attack_session
 from conpot.utils.networking import get_interface_ip
 import logging
 
@@ -69,7 +70,7 @@ class BacnetServer(object):
         logger.info(
             "New Bacnet connection from %s:%d. (%s)", address[0], address[1], session.id
         )
-        session.add_event({"type": "NEW_CONNECTION"})
+        session.add_event({"type": attack_session.NEW_CONNECTION})
         # I'm not sure if gevent DatagramServer handles issues where the
         # received data is over the MTU -> fragmentation
         if data:

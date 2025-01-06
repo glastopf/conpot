@@ -1,0 +1,13 @@
+<core>
+    <template>
+        <entity name="unit">Triconex</entity>
+        <entity name="vendor">Schneider</entity>
+        <entity name="description">Triconex system</entity>
+        <entity name="protocols">triconex</entity>
+        <entity name="creator">the conpot team</entity>
+    </template>
+    <databus>
+        <key_value_mappings>
+        </key_value_mappings>
+    </databus>
+</core>

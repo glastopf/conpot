@@ -23,9 +23,16 @@ from datetime import datetime
 logger = logging.getLogger(__name__)
 
 
+NEW_CONNECTION = "NEW_CONNECTION"
+CONNECTION_LOST = "CONNECTION_LOST"
+CONNECTION_CLOSED = "CONNECTION_CLOSED"
+CONNECTION_FAILED = "CONNECTION_FAILED"
+CONNECTION_TERMINATED = "CONNECTION_TERMINATED"
+CONNECTION_QUIT = "CONNECTION_QUIT"
+CONNECTION_TIMEOUT = "CONNECTION_TIMEOUT"
+
+
 # one instance per connection
-
-
 class AttackSession(object):
     def __init__(
         self,

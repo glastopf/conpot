@@ -28,4 +28,5 @@ freezegun!=0.3.13
 pytest
 cryptography==3.4.8
 sphinx_rtd_theme
+crcmod==1.7
 psutil

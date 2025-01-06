@@ -27,6 +27,7 @@ from conpot.protocols.s7comm.cotp import COTP_ConnectionRequest
 from conpot.protocols.s7comm.cotp import COTP_ConnectionConfirm
 from conpot.protocols.s7comm.s7 import S7
 import conpot.core as conpot_core
+from conpot.core import attack_session
 from conpot.core.protocol_wrapper import conpot_protocol
 from lxml import etree
 
@@ -81,13 +82,13 @@ class S7Server(object):
                 address[0], address[1], session.id
             )
         )
-        session.add_event({"type": "NEW_CONNECTION"})
+        session.add_event({"type": attack_session.NEW_CONNECTION})
 
         try:
             while True:
                 data = sock.recv(4, socket.MSG_WAITALL)
                 if len(data) == 0:
-                    session.add_event({"type": "CONNECTION_LOST"})
+                    session.add_event({"type": attack_session.CONNECTION_LOST})
                     break
 
                 _, _, length = unpack("!BBH", data[:4])
@@ -278,12 +279,12 @@ class S7Server(object):
                     )
 
         except socket.timeout:
-            session.add_event({"type": "CONNECTION_LOST"})
+            session.add_event({"type": attack_session.CONNECTION_LOST})
             logger.debug(
                 "Socket timeout, remote: {0}. ({1})".format(address[0], session.id)
             )
         except socket.error:
-            session.add_event({"type": "CONNECTION_LOST"})
+            session.add_event({"type": attack_session.CONNECTION_LOST})
             logger.debug(
                 "Connection reset by peer, remote: {0}. ({1})".format(
                     address[0], session.id

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" attributeFormDefault="qualified" elementFormDefault="qualified">
+    <xs:simpleType name="slot" final="restriction">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="empty" />
+            <xs:enumeration value="com" />
+            <xs:enumeration value="do" />
+            <xs:enumeration value="di" />
+            <xs:enumeration value="him" />
+            <xs:enumeration value="ddo" />
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:element name="triconex">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="slots">
+                    <xs:complexType>
+                        <xs:sequence>
+                            <xs:element type="slot" name="slot1" default="empty"/>
+                            <xs:element type="slot" name="slot2" default="empty"/>
+                            <xs:element type="slot" name="slot3" default="empty"/>
+                            <xs:element type="slot" name="slot4" default="empty"/>
+                        </xs:sequence>
+                    </xs:complexType>
+                </xs:element>
+            </xs:sequence>
+            <xs:attribute type="xs:string" name="enabled" use="required"/>
+            <xs:attribute type="xs:string" name="host" use="required"/>
+            <xs:attribute type="xs:short" name="port" use="required"/>
+        </xs:complexType>
+    </xs:element>
+</xs:schema>

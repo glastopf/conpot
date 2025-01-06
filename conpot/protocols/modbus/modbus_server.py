@@ -17,6 +17,7 @@ import modbus_tk.defines as mdef
 from conpot.core.protocol_wrapper import conpot_protocol
 from conpot.protocols.modbus import slave_db
 import conpot.core as conpot_core
+from conpot.core import attack_session
 
 logger = logging.getLogger(__name__)
 
@@ -105,7 +106,7 @@ class ModbusServer(modbus.Server):
         logger.info(
             "New Modbus connection from %s:%s. (%s)", address[0], address[1], session.id
         )
-        session.add_event({"type": "NEW_CONNECTION"})
+        session.add_event({"type": attack_session.NEW_CONNECTION})
 
         try:
             while True:
@@ -121,17 +122,17 @@ class ModbusServer(modbus.Server):
 
                 if not request:
                     logger.info("Modbus client disconnected. (%s)", session.id)
-                    session.add_event({"type": "CONNECTION_LOST"})
+                    session.add_event({"type": attack_session.CONNECTION_LOST})
                     break
                 if request.strip().lower() == "quit.":
                     logger.info("Modbus client quit. (%s)", session.id)
-                    session.add_event({"type": "CONNECTION_QUIT"})
+                    session.add_event({"type": attack_session.CONNECTION_QUIT})
                     break
                 if len(request) < 7:
                     logger.info(
                         "Modbus client provided data {} but invalid.".format(session.id)
                     )
-                    session.add_event({"type": "CONNECTION_TERMINATED"})
+                    session.add_event({"type": attack_session.CONNECTION_TERMINATED})
                     break
                 _, _, length = struct.unpack(">HHH", request[:6])
                 while len(request) < (length + 6):
@@ -169,7 +170,9 @@ class ModbusServer(modbus.Server):
                         logger.info(
                             "Modbus connection terminated with client %s.", address[0]
                         )
-                        session.add_event({"type": "CONNECTION_TERMINATED"})
+                        session.add_event(
+                            {"type": attack_session.CONNECTION_TERMINATED}
+                        )
                         sock.shutdown(socket.SHUT_RDWR)
                         sock.close()
                         break
@@ -179,13 +182,15 @@ class ModbusServer(modbus.Server):
                             "Modbus client ignored due to invalid addressing." " (%s)",
                             session.id,
                         )
-                        session.add_event({"type": "CONNECTION_TERMINATED"})
+                        session.add_event(
+                            {"type": attack_session.CONNECTION_TERMINATED}
+                        )
                         sock.shutdown(socket.SHUT_RDWR)
                         sock.close()
                         break
         except socket.timeout:
             logger.debug("Socket timeout, remote: %s. (%s)", address[0], session.id)
-            session.add_event({"type": "CONNECTION_LOST"})
+            session.add_event({"type": attack_session.CONNECTION_LOST})
 
     def start(self, host, port):
         self.host = host

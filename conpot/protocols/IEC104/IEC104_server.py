@@ -19,6 +19,7 @@ from conpot.protocols.IEC104.IEC104 import IEC104
 from .frames import struct, TESTFR_act, socket, errno
 import logging
 import conpot.core as conpot_core
+from conpot.core import attack_session
 from gevent.server import StreamServer
 import gevent
 from .errors import Timeout_t3
@@ -52,7 +53,7 @@ class IEC104Server(object):
             address[1],
             session.id,
         )
-        session.add_event({"type": "NEW_CONNECTION"})
+        session.add_event({"type": attack_session.NEW_CONNECTION})
         iec104_handler = IEC104(self.device_data_controller, sock, address, session.id)
         try:
             while True:
@@ -65,7 +66,7 @@ class IEC104Server(object):
                         request = sock.recv(6)
                         if not request:
                             logger.info("IEC104 Station disconnected. (%s)", session.id)
-                            session.add_event({"type": "CONNECTION_LOST"})
+                            session.add_event({"type": attack.session.CONNECTION_LOST})
                             iec104_handler.disconnect()
                             break
                         while request and len(request) < 2:
@@ -122,18 +123,18 @@ class IEC104Server(object):
                 except gevent.Timeout:
                     logger.warning("T1 timed out. (%s)", session.id)
                     logger.info("IEC104 Station disconnected. (%s)", session.id)
-                    session.add_event({"type": "CONNECTION_LOST"})
+                    session.add_event({"type": attack_session.CONNECTION_LOST})
                     iec104_handler.disconnect()
                     break
         except socket.timeout:
             logger.debug("Socket timeout, remote: %s. (%s)", address[0], session.id)
-            session.add_event({"type": "CONNECTION_LOST"})
+            session.add_event({"type": attack_session.CONNECTION_LOST})
         except socket.error as err:
             if isinstance(err.args, tuple):
                 if err.errno == errno.EPIPE:
                     # remote peer disconnected
                     logger.info("IEC104 Station disconnected. (%s)", session.id)
-                    session.add_event({"type": "CONNECTION_LOST"})
+                    session.add_event({"type": attack_session.CONNECTION_LOST})
                 else:
                     # determine and handle different error
                     pass

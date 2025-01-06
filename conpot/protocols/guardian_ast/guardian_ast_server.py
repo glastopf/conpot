@@ -25,6 +25,7 @@ import datetime
 import logging
 import random
 import conpot.core as conpot_core
+from conpot.core import attack_session
 from conpot.core.protocol_wrapper import conpot_protocol
 from conpot.utils.networking import str_to_bytes
 
@@ -55,7 +56,7 @@ class GuardianASTServer(object):
         logger.info(
             "New GuardianAST connection from %s:%d. (%s)", addr[0], addr[1], session.id
         )
-        session.add_event({"type": "NEW_CONNECTION"})
+        session.add_event({"type": attack_session.NEW_CONNECTION})
         current_time = datetime.datetime.utcnow()
         fill_start = self.fill_offset_time - datetime.timedelta(minutes=313)
         fill_stop = self.fill_offset_time - datetime.timedelta(minutes=303)
@@ -507,7 +508,7 @@ class GuardianASTServer(object):
         logger.info(
             "GuardianAST client disconnected %s:%d. (%s)", addr[0], addr[1], session.id
         )
-        session.add_event({"type": "CONNECTION_LOST"})
+        session.add_event({"type": attack_session.CONNECTION_LOST})
 
     def start(self, host, port):
         connection = (host, port)

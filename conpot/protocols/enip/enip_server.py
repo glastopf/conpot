@@ -29,6 +29,7 @@ from cpppo.server.enip import logix
 from cpppo.server.enip import parser
 from cpppo.server.enip import device
 from conpot.core.protocol_wrapper import conpot_protocol
+from conpot.core import attack_session
 import conpot.core as conpot_core
 
 logger = logging.getLogger(__name__)
@@ -133,7 +134,7 @@ class EnipServer(object):
             "enip", host, port, conn.getsockname()[0], conn.getsockname()[1]
         )
         logger.debug("ENIP server %s begins serving client %s", name, address)
-        session.add_event({"type": "NEW_CONNECTION"})
+        session.add_event({"type": attack_session.NEW_CONNECTION})
 
         tcp = conn.family == socket.AF_INET and conn.type == socket.SOCK_STREAM
         udp = conn.family == socket.AF_INET and conn.type == socket.SOCK_DGRAM
@@ -332,7 +333,7 @@ class EnipServer(object):
                             cpppo.timer() - begun,
                             delayseconds,
                         )
-                        session.add_event({"type": "CONNECTION_CLOSED"})
+                        session.add_event({"type": attack_session.CONNECTION_CLOSED})
                     except:
                         logger.error("Failed request: %s", parser.enip_format(data))
                         enip_process(address, data=cpppo.dotdict())  # Terminate.
@@ -491,7 +492,7 @@ class EnipServer(object):
                     logger.debug(
                         "Transaction complete after %7.3fs", cpppo.timer() - begun
                     )
-                    session.add_event({"type": "CONNECTION_CLOSED"})
+                    session.add_event({"type": attack_session.CONNECTION_CLOSED})
                     stats["processed"] = source.sent
                 except:
                     # Parsing failure.  Suck out some remaining input to give us some context, but don't re-raise
@@ -512,7 +513,7 @@ class EnipServer(object):
                         where,
                         "".join(traceback.format_exception(*sys.exc_info())),
                     )
-                    session.add_event({"type": "CONNECTION_FAILED"})
+                    session.add_event({"type": attack_session.CONNECTION_FAILED})
 
     def set_tags(self):
         typenames = {

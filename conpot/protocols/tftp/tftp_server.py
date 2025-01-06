@@ -24,6 +24,7 @@ from lxml import etree
 from conpot.protocols.tftp import tftp_handler
 from gevent.server import DatagramServer
 import conpot.core as conpot_core
+from conpot.core import attack_session
 from conpot.core.protocol_wrapper import conpot_protocol
 from conpot.utils.networking import get_interface_ip
 from tftpy import TftpException, TftpTimeout
@@ -116,7 +117,7 @@ class TftpServer(object):
                 client_addr[0], client_addr[1]
             )
         )
-        session.add_event({"type": "NEW_CONNECTION"})
+        session.add_event({"type": attack_session.NEW_CONNECTION})
         logger.debug("Read %d bytes", len(buffer))
         context = tftp_handler.TFTPContextServer(
             client_addr[0], client_addr[1], self.timeout, self.root, None, None
@@ -124,13 +125,13 @@ class TftpServer(object):
         context.vfs, context.data_fs = self.vfs, self.data_fs
         if self.shutdown:
             logger.info("Shutting down now. Disconnecting {}".format(client_addr))
-            session.add_event({"type": "CONNECTION_TERMINATED"})
+            session.add_event({"type": attack_session.CONNECTION_TERMINATED})
         try:
             context.start(buffer)
             context.cycle()
         except TftpTimeout as err:
             logger.info("Timeout occurred %s: %s" % (context, str(err)))
-            session.add_event({"type": "CONNECTION_TIMEOUT"})
+            session.add_event({"type": attack_session.CONNECTION_TIMEOUT})
             context.retry_count += 1
             # TODO: We should accept retries from the user.
             if context.retry_count >= self.TIMEOUT_RETRIES:
@@ -148,7 +149,7 @@ class TftpServer(object):
                     context, str(err)
                 )
             )
-            session.add_event({"type": "CONNECTION_LOST"})
+            session.add_event({"type": attack_session.CONNECTION_LOST})
         logger.info("TFTP: terminating connection: {}".format(context))
         session.set_ended()
         context.end()
